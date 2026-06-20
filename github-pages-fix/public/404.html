@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Climate Hero</title>
+    <script>
+      // GitHub Pages doesn't support client-side routing natively.
+      // Redirect any unknown path back to the app's index, preserving the path
+      // so React Router can pick it up via sessionStorage.
+      sessionStorage.redirect = location.href;
+    </script>
+    <meta http-equiv="refresh" content="0; url=/climate-hero/" />
+  </head>
+  <body></body>
+</html>
