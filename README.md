@@ -2,7 +2,7 @@
 
 A personal carbon footprint tracker that helps you understand, track, and reduce your environmental impact through simple daily actions and personalized insights.
 
-Live demo → (add your Netlify link here after deploying)
+Live demo → **[Live demo →](https://climate-hero.netlify.app/)**
 
 What it does
 
