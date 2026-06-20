@@ -13,7 +13,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <Toaster position="bottom-right" />
-    <BrowserRouter>
+    <BrowserRouter basename="/climate-hero/">
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/history" element={<History />} />
