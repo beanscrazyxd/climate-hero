@@ -1,4 +1,4 @@
-import { ActionDefinition } from "./api";
+import { ActionDefinition, LevelInfo } from "./api";
 
 export const ACTION_DEFINITIONS: ActionDefinition[] = [
   {
@@ -73,11 +73,19 @@ export const ACTION_DEFINITIONS: ActionDefinition[] = [
   },
 ];
 
-export function getActionById(id: string) {
+/** Finds an action definition by id, or undefined if it doesn't exist. */
+export function getActionById(id: string): ActionDefinition | undefined {
   return ACTION_DEFINITIONS.find((a) => a.id === id);
 }
 
-/** Simple level curve: level n requires n * 100 cumulative points. */
+/** Points required to advance from one level to the next. */
+const POINTS_PER_LEVEL = 100;
+
+/**
+ * Rank titles in ascending order. Once a user reaches the last title they
+ * remain "Planet Guardian" regardless of further point accumulation — the
+ * level number still increments, but the displayed rank caps here.
+ */
 const LEVEL_TITLES = [
   "Newcomer",
   "Eco Apprentice",
@@ -85,19 +93,36 @@ const LEVEL_TITLES = [
   "Climate Hero",
   "Carbon Slayer",
   "Planet Guardian",
-];
+] as const;
 
-export function getLevelInfo(totalPoints: number) {
-  const pointsPerLevel = 100;
-  const level = Math.min(
-    Math.floor(totalPoints / pointsPerLevel),
-    LEVEL_TITLES.length - 1,
-  );
-  const pointsIntoLevel = totalPoints - level * pointsPerLevel;
+/** Index of the highest-titled level (zero-based). */
+const MAX_TITLE_INDEX = LEVEL_TITLES.length - 1;
+
+/**
+ * Converts total accumulated points into a level number, title, and
+ * progress toward the next level.
+ *
+ * Once the user reaches the final title tier, `pointsIntoLevel` continues
+ * to accumulate indefinitely (no artificial cap on displayed progress),
+ * while `pointsForNextLevel` signals "no next level" by returning `null`.
+ *
+ * @param totalPoints - Lifetime accumulated points; must be >= 0.
+ */
+export function getLevelInfo(totalPoints: number): LevelInfo {
+  const rawLevelIndex = Math.floor(totalPoints / POINTS_PER_LEVEL);
+  const isCapped = rawLevelIndex >= LEVEL_TITLES.length;
+  const titleIndex = Math.min(rawLevelIndex, MAX_TITLE_INDEX);
+
+  // When capped, points keep accumulating from the start of the final tier.
+  const tierStart = isCapped
+    ? MAX_TITLE_INDEX * POINTS_PER_LEVEL
+    : titleIndex * POINTS_PER_LEVEL;
+  const pointsIntoLevel = totalPoints - tierStart;
+
   return {
-    level: level + 1,
-    title: LEVEL_TITLES[level],
+    level: rawLevelIndex + 1,
+    title: LEVEL_TITLES[titleIndex],
     pointsIntoLevel,
-    pointsForNextLevel: pointsPerLevel,
+    pointsForNextLevel: POINTS_PER_LEVEL,
   };
 }
